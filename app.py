@@ -7,7 +7,7 @@ from openai import OpenAI
 client = OpenAI()
 
 # 페이지 설정
-st.set_page_config(page_title="아주 멋진 한영 번역기", page_icon="★")
+st.set_page_config(page_title="아주 멋진 한영 번역기", page_icon="star")
 st.title("번역이 아주 잘되는 한영 번역기입니다")
 st.write("번역할 문장을 적어보시겠어요?")
 
