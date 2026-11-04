@@ -46,6 +46,21 @@ st.set_page_config(
 st.title("😍김대리 전용 음성 인식 AI 서비스, 에이블")
 st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문하시면 답변해 드릴게요")
 
+# 랜덤 응원 한 줄
+encouragements = [
+    "🌱 김대리님, 작은 실행이 큰 변화를 만들어요!",
+    "💪 오늘도 한 걸음 나아간 김대리님을 응원해요!",
+    "✨ 완벽하지 않아도 괜찮아요. 하나씩 해봐요!",
+    "🚀 좋은 아이디어예요. 이제 작은 것부터 실행해봐요!",
+    "☕ 잠깐 쉬어가도 괜찮아요. 에이블이 함께할게요!"
+]
+
+# 처음 접속할 때 한 문구를 선택해서 저장
+if "encouragement" not in st.session_state:
+    st.session_state.encouragement = random.choice(encouragements)
+
+# 실행 버튼을 누르지 않아도 표시
+st.info(st.session_state.encouragement)
 
 # 4. AI 역할 지정
 sys_role = """
@@ -133,16 +148,6 @@ if submit:
     st.subheader("AI 답변")
     st.write(answer)
 
-    # 랜덤 응원 한 줄
-    encouragements = [
-        "🌱 김대리님, 작은 실행이 큰 변화를 만들어요!",
-        "💪 오늘도 한 걸음 나아간 김대리님을 응원해요!",
-        "✨ 완벽하지 않아도 괜찮아요. 하나씩 해봐요!",
-        "🚀 좋은 아이디어예요. 이제 작은 것부터 실행해봐요!",
-        "☕ 잠깐 쉬어가도 괜찮아요. 에이블이 함께할게요!"
-    ]
-
-    st.info(random.choice(encouragements))
     # 질문과 답변 저장
     st.session_state.messages.append(
         {"role": "user", "content": transcript.text}
