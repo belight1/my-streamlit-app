@@ -104,7 +104,7 @@ if submit:
         )
 
     # 이전 대화 추가
-    input_messages.extend(st.session_state.messages)
+    input_messages.extend(st.session_state.messages[-20:])
 
     # 이번 질문 추가
     input_messages.append(
@@ -135,9 +135,6 @@ if submit:
     st.session_state.messages.append(
         {"role": "assistant", "content": answer}
     )
-
-    # 최근 질문·답변 10쌍만 유지
-    st.session_state.messages = st.session_state.messages[-20:]
 
     # 음성으로 읽어줄 최종 내용
     final_answer = answer
@@ -210,6 +207,27 @@ if submit:
             st.error("메일 요약 또는 발송 처리 중 오류가 발생했습니다.")
             final_answer += "\n메일 처리 중 오류가 발생했습니다."
 
+    # 메일 처리 후 최종 답변을 음성으로 변환
+    try:
+        with st.spinner("음성을 만들고 있습니다..."):
+            speech = client.audio.speech.create(
+                model="gpt-4o-mini-tts",
+                voice="onyx",
+                input=final_answer,
+                response_format="mp3"
+            )
+
+        st.caption("AI가 생성한 음성입니다.")
+        st.audio(
+            speech.content,
+            format="audio/mp3",
+            autoplay=True
+        )
+
+    except Exception as e:
+        st.error("음성 생성에 실패했습니다.")
+        st.write(str(e))
+
 
 # 8. 대화 내역 표시: 실행 버튼을 누르지 않아도 표시
 with st.expander("이전 대화 보기"):
@@ -221,5 +239,3 @@ with st.expander("이전 대화 보기"):
             st.write("🙋 나:", message["content"])
         else:
             st.write("🤖 AI:", message["content"])
-
-      
