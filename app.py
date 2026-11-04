@@ -142,45 +142,65 @@ if submit:
     # 음성으로 읽어줄 최종 내용
     final_answer = answer
 
-    # 체크한 경우에만 요약 및 메일 발송
+    # 체크한 경우에만 전체 대화 요약 및 메일 발송
     if email_send:
         try:
-            with st.spinner("핵심 내용을 요약하고 있습니다..."):
+            # 저장된 모든 질문과 답변을 하나의 글로 연결
+            conversation = ""
+
+            for message in st.session_state.messages:
+                if message["role"] == "user":
+                    conversation += f"[질문]\n{message['content']}\n\n"
+                else:
+                    conversation += f"[답변]\n{message['content']}\n\n"
+
+            # 전체 대화의 핵심을 3줄로 요약
+            with st.spinner("전체 대화를 3줄로 요약하고 있습니다..."):
                 summary_response = client.responses.create(
                     model="gpt-4o-mini",
                     input=[
                         {
                             "role": "system",
                             "content": (
-                                "질문과 답변의 핵심 내용을 한국어로 "
-                                "3~5개의 짧은 항목으로 요약하세요. "
-                                "원문에 없는 내용은 추가하지 마세요."
+                                "제공된 전체 대화의 핵심을 한국어로 요약하세요. "
+                                "반드시 1. 2. 3.으로 시작하는 정확히 3줄을 작성하세요. "
+                                "제목이나 빈 줄은 넣지 마세요. "
+                                "각 줄은 짧은 한 문장으로 작성하세요. "
+                                "대화에 없는 내용은 추가하지 마세요."
                             )
                         },
                         {
                             "role": "user",
-                            "content": (
-                                f"질문: {transcript.text}\n\n"
-                                f"답변: {answer}"
-                            )
+                            "content": conversation
                         }
                     ]
                 )
 
                 summary = summary_response.output_text
 
+            # 핵심 요약을 위에, 전체 대화 원문을 아래에 배치
+            email_body = (
+                f"[핵심 요약 3줄]\n"
+                f"{summary}\n\n"
+                f"────────────────────\n\n"
+                f"[전체 대화 원문]\n\n"
+                f"{conversation}"
+            )
+
+            # 메일 발송
             with st.spinner("메일을 보내고 있습니다..."):
                 result = send_email(
                     to=st.secrets["GMAIL_ADDRESS"],
-                    subject="음성 AI 서비스 핵심 요약",
-                    body=summary
+                    subject="음성 AI 서비스 | 핵심 요약 및 전체 대화",
+                    body=email_body
                 )
 
-            # 메일 처리 결과 안내
+            # 발송 결과 안내
             if result["status"] == "success":
-                st.success("핵심 요약 메일 발송 요청이 완료됐습니다.")
+                st.success("핵심 요약과 전체 대화의 메일 발송 요청이 완료됐습니다.")
                 final_answer += (
-                    "\n핵심 요약 메일 발송 요청도 완료했습니다."
+                    "\n핵심 요약 3줄과 전체 대화의 "
+                    "메일 발송 요청도 완료했습니다."
                 )
             else:
                 st.error("메일 발송에 실패했습니다.")
@@ -189,27 +209,6 @@ if submit:
         except Exception:
             st.error("메일 요약 또는 발송 처리 중 오류가 발생했습니다.")
             final_answer += "\n메일 처리 중 오류가 발생했습니다."
-
-    # 메일 처리 후 최종 내용을 음성으로 변환
-    try:
-        with st.spinner("음성을 만들고 있습니다..."):
-            speech = client.audio.speech.create(
-                model="gpt-4o-mini-tts",
-                voice="onyx",
-                input=final_answer,
-                response_format="mp3"
-            )
-
-        st.caption("AI가 생성한 음성입니다.")
-
-        st.audio(
-            speech.content,
-            format="audio/mp3",
-            autoplay=True
-        )
-
-    except Exception:
-        st.error("음성 생성에 실패했습니다. 글로 표시된 답변을 확인해주세요.")
 
 
 # 8. 대화 내역 표시: 실행 버튼을 누르지 않아도 표시
