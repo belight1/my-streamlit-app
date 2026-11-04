@@ -82,6 +82,23 @@ if submit:
         # 최근 질문·답변 10쌍만 유지
         st.session_state.messages = st.session_state.messages[-20:]
 
+        # AI 답변을 음성으로 변환
+        with st.spinner("음성을 만들고 있습니다..."):
+            speech = client.audio.speech.create(
+                model="gpt-4o-mini-tts",
+                voice="onyx",
+                input=answer,
+                response_format="mp3"
+            )
+
+        # 생성한 음성을 자동 재생
+        st.caption("AI가 생성한 음성입니다.")
+        st.audio(
+            speech.content,
+            format="audio/mp3",
+            autoplay=True
+        )
+
         # 저장된 대화 내역 표시
 with st.expander("이전 대화 보기"):
     for message in st.session_state.messages:
