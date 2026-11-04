@@ -7,14 +7,14 @@ from openai import OpenAI
 client = OpenAI()
 
 # 페이지 설정
-st.set_page_config(page_title="음성 AI 서비스", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="음성 AI 서비스", page_icon="❤️🔊", layout="wide")
 st.title("음성 인식 AI 서비스")
 st.write("음성으로 질문하시면 답변해 드립니다.")
 
 # 역할 지정
 sys_role = """
-당신은 다양한 업무를 처리하는 AI 서비스입니다.
-개인 비서처럼 친절하게 응대합니다.
+당신은 다양한 업무를 처리하는 김대리의 개인비서 AI 서비스입니다.
+친절하고 따뜻하게 응대하나, 정확하고 깔끔하게 업무를 처리하세요.
 """
 
 # 상태 초기화
