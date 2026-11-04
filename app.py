@@ -37,12 +37,12 @@ client = OpenAI()
 
 # 3. 페이지 설정
 st.set_page_config(
-    page_title="😍김대리 전용 음성 AI 서비스, 에이블😍",
+    page_title="김대리 전용 음성 AI 서비스, 에이블",
     page_icon="😍",
     layout="wide"
 )
 
-st.title("김대리 전용 음성 인식 AI 서비스, 에이블")
+st.title("😍김대리 전용 음성 인식 AI 서비스, 에이블")
 st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문하시면 답변해 드릴게요")
 
 
@@ -62,7 +62,7 @@ if st.button("🗑️ 대화 초기화"):
     st.session_state.messages = []
     st.rerun()
 
-# 6. 사용자 입력
+
 # 6. 사용자 입력
 with st.form("task_form"):
     uploaded_file = st.file_uploader(
@@ -84,7 +84,6 @@ with st.form("task_form"):
     submit = st.form_submit_button("실행")
 
 
-
 # 7. 실행 버튼을 눌렀을 때만 처리
 if submit:
     # 녹음 여부 확인
@@ -102,10 +101,6 @@ if submit:
     if text:
         system_content += f"\n\n다음 내용을 참고하세요:\n{text}"
 
-    input_messages = [
-        {"role": "system", "content": system_content}
-    ]
-
     if answer_style == "간단히":
         system_content += "\n핵심만 3문장 이내로 답변하세요."
 
@@ -116,7 +111,12 @@ if submit:
         system_content += (
             "\n창의적이고 통통 튀는 아이디어로 답변하세요. "
         )
-        
+
+    # 답변 스타일까지 추가한 뒤 시스템 메시지 생성
+    input_messages = [
+        {"role": "system", "content": system_content}
+    ]
+
     # 음성 → 텍스트
     with st.spinner("음성을 인식하고 있습니다..."):
         transcript = client.audio.transcriptions.create(
