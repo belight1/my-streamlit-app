@@ -54,10 +54,8 @@ weather = st.selectbox(
 )
 
 # 처음 접속했거나 날씨가 바뀌면 새 응원 문구 생성
-if (
-    "encouragement" not in st.session_state
-    or st.session_state.get("encouragement_weather") != weather
-):
+# 처음 접속할 때 LLM으로 응원 문구 생성
+if "llm_encouragement" not in st.session_state:
     try:
         with st.spinner("김대리님을 위한 응원 한 줄을 만들고 있어요..."):
             encouragement_response = client.responses.create(
@@ -67,33 +65,32 @@ if (
                         "role": "system",
                         "content": (
                             "당신은 따뜻한 AI 개인비서입니다. "
-                            "'김대리님'이라는 호칭을 반드시 넣고 "
-                            "짧은 응원 문구를 한 줄로 작성하세요. "
-                            "실제로 존재하고 의미가 맞는 사자성어 하나를 "
-                            "사용하고, 그 뜻을 쉬운 말로 자연스럽게 풀어주세요. "
-                            "전달받은 날씨를 자연스럽게 반영하세요. "
-                            "날씨가 '선택 안 함'이면 날씨를 언급하지 마세요. "
-                            "기온이나 예보 등 제공되지 않은 정보는 만들지 마세요. "
-                            "이모지는 하나만 사용하고 따옴표나 제목은 생략하세요."
+                            "'김대리님'이라는 호칭을 반드시 넣어 "
+                            "짧고 자연스러운 응원 문구를 한 줄로 작성하세요. "
+                            "실제로 존재하는 사자성어 하나를 사용하고 "
+                            "그 뜻을 쉬운 말로 자연스럽게 풀어주세요. "
+                            "이모지는 하나만 사용하세요. "
+                            "제목이나 따옴표는 넣지 마세요."
                         )
                     },
                     {
                         "role": "user",
-                        "content": f"사용자가 선택한 오늘 날씨: {weather}"
+                        "content": "오늘 업무를 시작하는 김대리님을 응원해주세요."
                     }
                 ]
             )
 
-        st.session_state.encouragement = (
+        st.session_state.llm_encouragement = (
             encouragement_response.output_text.strip()
         )
 
     except Exception:
-        st.session_state.encouragement = (
-            "🦦 김대리님, 오늘도 작은 한 걸음부터 함께 시작해봐요!"
+        st.session_state.llm_encouragement = (
+            "🌱 김대리님, 오늘도 작은 한 걸음부터 시작해봐요!"
         )
 
-    st.session_state.encouragement_weather = weather
+# 실행 버튼을 누르지 않아도 표시
+st.info(st.session_state.llm_encouragement)
 
 # 생성한 응원 문구 표시
 st.info(st.session_state.encouragement)
