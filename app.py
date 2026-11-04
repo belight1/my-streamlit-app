@@ -76,11 +76,6 @@ with st.form("task_form"):
         "핵심 요약 3줄 확인 & 답변 내 메일로 보내기"
     )
 
-    answer_style = st.selectbox(
-        "답변 스타일",
-        ["간단히", "자세히", "아이디어용"]
-    )
-
     submit = st.form_submit_button("실행")
 
 
@@ -96,26 +91,6 @@ if submit:
     if uploaded_file is not None:
         text = uploaded_file.getvalue().decode("utf-8-sig")
 
-    # 시스템 지시에 참고 자료 추가
-    system_content = sys_role
-    if text:
-        system_content += f"\n\n다음 내용을 참고하세요:\n{text}"
-
-    if answer_style == "간단히":
-        system_content += "\n핵심만 3문장 이내로 답변하세요."
-
-    elif answer_style == "자세히":
-        system_content += "\n이유와 구체적인 예시, 출처를 포함해 자세히 답변하세요."
-
-    else:
-        system_content += (
-            "\n창의적이고 통통 튀는 아이디어로 답변하세요. "
-        )
-
-    # 답변 스타일까지 추가한 뒤 시스템 메시지 생성
-    input_messages = [
-        {"role": "system", "content": system_content}
-    ]
 
     # 음성 → 텍스트
     with st.spinner("음성을 인식하고 있습니다..."):
