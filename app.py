@@ -48,12 +48,6 @@ st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문
 
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★  랜덤 응원 한 줄
 # 응원 문구에 반영할 날씨
-weather = st.selectbox(
-    "오늘 날씨는 어떤가요?",
-    ["선택 안 함", "맑음", "흐림", "비", "눈"]
-)
-
-# 처음 접속했거나 날씨가 바뀌면 새 응원 문구 생성
 # 처음 접속할 때 LLM으로 응원 문구 생성
 if "llm_encouragement" not in st.session_state:
     try:
@@ -91,9 +85,6 @@ if "llm_encouragement" not in st.session_state:
 
 # 실행 버튼을 누르지 않아도 표시
 st.info(st.session_state.llm_encouragement)
-
-# 생성한 응원 문구 표시
-st.info(st.session_state.encouragement)
 
 # 4. AI 역할 지정
 sys_role = """
