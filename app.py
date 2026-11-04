@@ -46,20 +46,56 @@ st.set_page_config(
 st.title("😍김대리 전용 음성 인식 AI 서비스, 에이블")
 st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문하시면 답변해 드릴게요")
 
-# 랜덤 응원 한 줄
-encouragements = [
-    "🌱 김대리님, 작은 실행이 큰 변화를 만들어요!",
-    "💪 오늘도 한 걸음 나아간 김대리님을 응원해요!",
-    "✨ 완벽하지 않아도 괜찮아요. 하나씩 해봐요!",
-    "🚀 좋은 아이디어예요. 이제 작은 것부터 실행해봐요!",
-    "☕ 잠깐 쉬어가도 괜찮아요. 에이블이 함께할게요!"
-]
+# ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★  랜덤 응원 한 줄
+# 응원 문구에 반영할 날씨
+weather = st.selectbox(
+    "오늘 날씨는 어떤가요?",
+    ["선택 안 함", "맑음", "흐림", "비", "눈"]
+)
 
-# 처음 접속할 때 한 문구를 선택해서 저장
-if "encouragement" not in st.session_state:
-    st.session_state.encouragement = random.choice(encouragements)
+# 처음 접속했거나 날씨가 바뀌면 새 응원 문구 생성
+if (
+    "encouragement" not in st.session_state
+    or st.session_state.get("encouragement_weather") != weather
+):
+    try:
+        with st.spinner("김대리님을 위한 응원 한 줄을 만들고 있어요..."):
+            encouragement_response = client.responses.create(
+                model=MODEL,
+                input=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "당신은 따뜻한 AI 개인비서입니다. "
+                            "'김대리님'이라는 호칭을 반드시 넣고 "
+                            "짧은 응원 문구를 한 줄로 작성하세요. "
+                            "실제로 존재하고 의미가 맞는 사자성어 하나를 "
+                            "사용하고, 그 뜻을 쉬운 말로 자연스럽게 풀어주세요. "
+                            "전달받은 날씨를 자연스럽게 반영하세요. "
+                            "날씨가 '선택 안 함'이면 날씨를 언급하지 마세요. "
+                            "기온이나 예보 등 제공되지 않은 정보는 만들지 마세요. "
+                            "이모지는 하나만 사용하고 따옴표나 제목은 생략하세요."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": f"사용자가 선택한 오늘 날씨: {weather}"
+                    }
+                ]
+            )
 
-# 실행 버튼을 누르지 않아도 표시
+        st.session_state.encouragement = (
+            encouragement_response.output_text.strip()
+        )
+
+    except Exception:
+        st.session_state.encouragement = (
+            "🦦 김대리님, 오늘도 작은 한 걸음부터 함께 시작해봐요!"
+        )
+
+    st.session_state.encouragement_weather = weather
+
+# 생성한 응원 문구 표시
 st.info(st.session_state.encouragement)
 
 # 4. AI 역할 지정
@@ -74,7 +110,7 @@ sys_role = """
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-if st.button("🗑️ 대화 초기화"):
+if st.button("🗑️ 대화 초기화"): #★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     st.session_state.messages = []
     st.rerun()
 
@@ -89,7 +125,7 @@ with st.form("task_form"):
     audio_value = st.audio_input("무엇을 도와드릴까요?")
 
     email_send = st.checkbox(
-        "핵심 요약 3줄 확인 & 답변 내 메일로 보내기"
+        "핵심 요약 3줄 확인 & 답변 내 메일로 보내기" #★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     )
 
     submit = st.form_submit_button("실행")
@@ -277,7 +313,7 @@ if st.session_state.messages:
         else:
             download_text += f"[답변]\n{message['content']}\n\n"
 
-    # 다운로드 버튼
+    # 다운로드 버튼 #★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     st.download_button(
         label="📥 전체 대화 다운로드",
         data=download_text.encode("utf-8-sig"),
