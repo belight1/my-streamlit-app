@@ -13,8 +13,8 @@ st.write("음성으로 질문하시면 답변해 드립니다.")
 
 # 역할 지정
 sys_role = """
-당신은 다양한 업무를 처리하는 김대리의 개인비서 AI 서비스입니다.
-친절하고 따뜻하게 응대하나, 정확하고 깔끔하게 업무를 처리하세요.
+당신은 다양한 업무를 처리하는 AI 서비스입니다.
+개인 비서처럼 친절하게 응대합니다.
 """
 
 # 상태 초기화
@@ -50,7 +50,10 @@ if submit:
         model="whisper-1",
         file=("audio.wav", audio_value, "audio/wav"))
 
-    # 사용자 메시지
+    # 이전 대화를 먼저 추가
+    input_messages.extend(st.session_state.messages)
+
+    # 이번 질문을 추가
     input_messages.append({"role": "user", "content": transcript.text})
 
     # LLM 호출 및 응답 듣기
@@ -65,3 +68,24 @@ if submit:
         # 응답 출력
         st.subheader("AI 답변")
         st.write(answer)
+
+        # 이번 질문 저장
+        st.session_state.messages.append(
+            {"role": "user", "content": transcript.text}
+        )
+
+        # 이번 답변 저장
+        st.session_state.messages.append(
+            {"role": "assistant", "content": answer}
+        )
+
+        # 최근 질문·답변 10쌍만 유지
+        st.session_state.messages = st.session_state.messages[-20:]
+
+        # 저장된 대화 내역 표시
+with st.expander("이전 대화 보기"):
+    for message in st.session_state.messages:
+        if message["role"] == "user":
+            st.write("🙋 나:", message["content"])
+        else:
+            st.write("🤖 AI:", message["content"])
