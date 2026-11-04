@@ -37,19 +37,19 @@ client = OpenAI()
 
 # 3. 페이지 설정
 st.set_page_config(
-    page_title="음성 AI 서비스",
-    page_icon="🔊",
+    page_title="김대리 전용 음성 AI 서비스, 에이블",
+    page_icon="😍",
     layout="wide"
 )
 
-st.title("음성 인식 AI 서비스")
-st.write("음성으로 질문하시면 답변해 드립니다.")
+st.title("김대리 전용 음성 인식 AI 서비스, 에이블")
+st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문하시면 답변해 드릴게요")
 
 
 # 4. AI 역할 지정
 sys_role = """
-당신은 다양한 업무를 처리하는 AI 서비스입니다.
-개인 비서처럼 친절하게 응대합니다.
+당신은 다양한 업무를 처리하는 김대리 전용 AI 서비스 '에이블' 입니다.
+개인 비서처럼 친절하고 따뜻하게 응대하되, 정확하고 명료하게 업무를 처리하세요.
 사용자가 다른 언어를 요청하지 않으면 한국어로 답변합니다.
 """
 
@@ -58,6 +58,9 @@ sys_role = """
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+if st.button("🗑️ 대화 초기화"):
+    st.session_state.messages = []
+    st.rerun()
 
 # 6. 사용자 입력
 with st.form("task_form"):
@@ -175,6 +178,10 @@ if submit:
 
                 summary = summary_response.output_text
 
+                # 메일에 넣을 핵심 요약을 화면에도 표시
+                st.subheader("핵심 요약 미리보기")
+                st.write(summary)
+
             # 핵심 요약을 위에, 전체 대화 원문을 아래에 배치
             email_body = (
                 f"[핵심 요약 3줄]\n"
@@ -238,4 +245,25 @@ with st.expander("이전 대화 보기"):
         if message["role"] == "user":
             st.write("🙋 나:", message["content"])
         else:
-            st.write("🤖 AI:", message["content"])
+            st.write("😍 AI:", message["content"])
+
+
+# 저장된 대화가 있을 때만 다운로드 버튼 표시
+if st.session_state.messages:
+    # 전체 대화를 하나의 글로 연결
+    download_text = ""
+
+    for message in st.session_state.messages:
+        if message["role"] == "user":
+            download_text += f"[질문]\n{message['content']}\n\n"
+        else:
+            download_text += f"[답변]\n{message['content']}\n\n"
+
+    # 다운로드 버튼
+    st.download_button(
+        label="📥 전체 대화 다운로드",
+        data=download_text.encode("utf-8-sig"),
+        file_name="대화기록.txt",
+        mime="text/plain",
+        on_click="ignore"
+    )
