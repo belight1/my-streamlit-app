@@ -47,7 +47,6 @@ st.title("😍김대리 전용 음성 인식 AI 서비스, 에이블")
 st.write("안녕하세요 김대리님, 에이블입니다.\n음성으로 질문하시면 답변해 드릴게요")
 
 # ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★  랜덤 응원 한 줄
-# 응원 문구에 반영할 날씨
 # 처음 접속할 때 LLM으로 응원 문구 생성
 if "llm_encouragement" not in st.session_state:
     try:
@@ -76,11 +75,6 @@ if "llm_encouragement" not in st.session_state:
 
         st.session_state.llm_encouragement = (
             encouragement_response.output_text.strip()
-        )
-
-    except Exception:
-        st.session_state.llm_encouragement = (
-            "🌱 김대리님, 오늘도 작은 한 걸음부터 시작해봐요!"
         )
 
 # 실행 버튼을 누르지 않아도 표시
