@@ -77,6 +77,11 @@ if "llm_encouragement" not in st.session_state:
             encouragement_response.output_text.strip()
         )
 
+    except Exception:
+        st.session_state.llm_encouragement = (
+            "🌱 김대리님, 오늘도 작은 한 걸음부터 시작해봐요!"
+        )
+
 # 실행 버튼을 누르지 않아도 표시
 st.info(st.session_state.llm_encouragement)
 
