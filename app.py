@@ -106,3 +106,45 @@ with st.expander("이전 대화 보기"):
             st.write("🙋 나:", message["content"])
         else:
             st.write("🤖 AI:", message["content"])
+
+
+# 라이브러리를 불러오기
+import smtplib
+from email.mime.text import MIMEText
+
+# 함수 만들기
+def send_email(to, subject, body):
+    sender = os.getenv("GMAIL_ADDRESS")
+    password = os.getenv("GMAIL_APP_PASSWORD")
+
+    # 메일 구성 (본문, 제목, 발신자, 수신자)
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender
+    msg["To"] = to
+
+    # 메일 보내기 (with 구문: 오류가 나도 연결이 닫힘)
+    try:
+        with smtplib.SMTP("smtp.gmail.com", 587) as s:
+            s.starttls()
+            s.login(sender, password)
+            s.sendmail(sender, to, msg.as_string())
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "failed", "error": str(e)}
+
+if st.button("테스트 메일 보내기"):
+    with st.spinner("메일을 보내고 있습니다..."):
+        result = send_email(
+            to=st.secrets["GMAIL_ADDRESS"],
+            subject="음성 AI 서비스 발송 테스트",
+            body="테스트 메일입니다. Gmail 연결을 확인합니다."
+        )
+
+    if result["status"] == "success":
+        st.success("메일 서버가 발송 요청을 정상적으로 받았습니다.")
+    else:
+        st.error("메일 발송에 실패했습니다.")
+        st.write(result["error"])
+
+      
